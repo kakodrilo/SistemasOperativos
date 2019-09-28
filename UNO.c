@@ -41,7 +41,7 @@ void Crear_Carpeta(char nombre[]){
 */
 void Crear_Archivo(char nombre_archivo[], char carpeta[]){
     char direccion[30];  // string donde se guarda el string: carpeta/nombre_archivo.txt
-    sprintf(direccion,"%s/%s.txt",carpeta,nombre_archivo);
+    sprintf(direccion,"%s/%s",carpeta,nombre_archivo);
     FILE * archivo = fopen(direccion,"w"); // se crea el archivo vacío
     if (archivo == NULL)
     {
@@ -55,27 +55,43 @@ void Crear_Archivo(char nombre_archivo[], char carpeta[]){
 */
 void Generar_Cartas(char color[]){
     char carta[30];
-    sprintf(carta,"0_%s",color);
+    sprintf(carta,"0_%s.txt",color);
     Crear_Archivo(carta,"mazo");  // se crea la carta 0 (1 de cada color)
     int i;
     for (i = 1; i <= 9; i++)
     {
-        sprintf(carta,"%d_%s_1",i,color);    // se generan los numeros (2 de cada color)
+        sprintf(carta,"%d_%s_1.txt",i,color);    // se generan los numeros (2 de cada color)
         Crear_Archivo(carta,"mazo");
-        sprintf(carta,"%d_%s_2",i,color);
+        sprintf(carta,"%d_%s_2.txt",i,color);
         Crear_Archivo(carta,"mazo");
 
         if (i < 3)      // se generan las cartas de reversa, +2 y salto (2 de cada color)
         {
-            sprintf(carta,"+2_%s_%d",color,i);
+            sprintf(carta,"+2_%s_%d.txt",color,i);
             Crear_Archivo(carta,"mazo");
 
-            sprintf(carta,"reversa_%s_%d",color,i);
+            sprintf(carta,"reversa_%s_%d.txt",color,i);
             Crear_Archivo(carta,"mazo");
 
-            sprintf(carta,"salto_%s_%d",color,i);
+            sprintf(carta,"salto_%s_%d.txt",color,i);
             Crear_Archivo(carta,"mazo");
         }   
+    }
+}
+
+
+/* Fución que genera las cartas Especiales  
+*/
+void Generar_CartasEspeciales(){
+    int i;
+    char carta_especial[30];
+    for (i = 1; i <= 4; i++)          // se generan las cartas especiales de cambio de color y +4 (4 de cada una)
+    {
+        sprintf(carta_especial,"+4_%d.txt",i);
+        Crear_Archivo(carta_especial,"mazo");
+
+        sprintf(carta_especial,"colores_%d.txt",i);
+        Crear_Archivo(carta_especial,"mazo");
     }
 }
 
@@ -89,17 +105,7 @@ int main(){
     Generar_Cartas("rojo");
     Generar_Cartas("verde");
     Generar_Cartas("amarillo");
+    Generar_CartasEspeciales();
 
-    int i;
-    char carta_especial[30];
-    for (i = 1; i <= 4; i++)          // se generan las cartas especiales de cambio de color y +4 (4 de cada una)
-    {
-        sprintf(carta_especial,"+4_%d",i);
-        Crear_Archivo(carta_especial,"mazo");
-
-        sprintf(carta_especial,"colores_%d",i);
-        Crear_Archivo(carta_especial,"mazo");
-    }
-    
     return 0;
 }
