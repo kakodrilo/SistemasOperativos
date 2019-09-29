@@ -10,4 +10,4 @@ UNO.o: UNO.c
 
 clear:
 	rm -r UNO \
-	UNO.o jugador1 jugador2 jugador3 jugador4 mazo
+	UNO.o jugador1 jugador2 jugador3 jugador4 mazo ultimaCarta

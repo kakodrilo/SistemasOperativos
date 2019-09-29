@@ -36,7 +36,7 @@ void Crear_Carpeta(char nombre[]){
 }
 
 
-/* Funcion que crea un archivo .txt según el nombre entrgado en el nombre de la carpeta entregada
+/* Funcion que crea un archivo .txt según el nombre entregado en el nombre de la carpeta entregada
     se asume que la carpeta existe.
 */
 void Crear_Archivo(char nombre_archivo[], char carpeta[]){
@@ -99,7 +99,7 @@ int filtro(const struct dirent * carpeta){
     return 1;  // retornamos 1 para que se agregue
 }
 
-
+/*Funcion mueve una carta aleatoria de la carpeta origen a la acrpeta destino*/
 void Mover_Carta_random(char carpeta_origen[],char carpeta_destino[]){
     /* ver todos los archivos de la carpeta origen*/
     struct dirent **resultados = NULL;
@@ -127,6 +127,14 @@ void Mover_Carta_random(char carpeta_origen[],char carpeta_destino[]){
     remove(borrar); 
 }
 
+/*Funcion mueve una carta especifica entregada como parametro desde una carpeta de origen a una de destino*/
+void Mover_Carta_especifica(char carpeta_origen[],char carpeta_destino[], char carta[]){
+    Crear_Archivo(carta,carpeta_destino); // se crea el archivo en la carpeta de destino
+    char borrar[40];
+    sprintf(borrar,"%s/%s",carpeta_origen,carta);    // se borra el archivo de la carpeta de origen
+    remove(borrar); 
+}
+
 int main(){
     srand(time(NULL));
 
@@ -136,6 +144,7 @@ int main(){
     Crear_Carpeta("jugador2");
     Crear_Carpeta("jugador3");
     Crear_Carpeta("jugador4");
+    Crear_Carpeta("ultimaCarta");
 
     /* Crear las cartas en el mazo*/
     Generar_Cartas("azul");
@@ -152,6 +161,8 @@ int main(){
         Mover_Carta_random("mazo","jugador3");
         Mover_Carta_random("mazo","jugador4");
     }
+
+    /*Mover_Carta_especifica("mazo","jugador1","2_rojo_1.txt");*/
     
     return 0;
 }
