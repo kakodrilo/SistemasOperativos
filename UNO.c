@@ -162,6 +162,8 @@ int main(){
         Mover_Carta_random("mazo","jugador4");
     }
 
+    /*La siguiente linea sirve para probar la funcion Mover_Carta_especifica. La idea es probarla con una carta que se
+    sepa que esta en la carpeta mazo:*/
     /*Mover_Carta_especifica("mazo","jugador1","2_rojo_1.txt");*/
     
     return 0;
