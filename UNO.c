@@ -3,7 +3,6 @@
 #include <dirent.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include<time.h>
 
 /* Función que revisa si existe una carpeta con el nombre pasado por parámetro
