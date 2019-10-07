@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <math.h>
 
 /* Función que revisa si existe una carpeta con el nombre pasado por parámetro
     retorna 0 si no existe
@@ -165,9 +166,8 @@ int main(){
         Mover_Carta_random("mazo","jugador4");
     }
 
-    /*La siguiente linea sirve para probar la funcion Mover_Carta_especifica. La idea es probarla con una carta que se
-    sepa que esta en la carpeta mazo:*/
-    /*Mover_Carta_especifica("mazo","jugador1","2_rojo_1.txt");*/
+    //----------------------------------------------------------------------------------------------------//
+    /* CREACION DE JUGADORES Y COMUNICACION ENTRE ELLOS */
     
     int pipe12[2];  // pipes entre jugador 1 y jugador 2
     int pipe21[2];
@@ -186,13 +186,16 @@ int main(){
 
     pipe(pipe12);  // creo pipe jugador 1 a jugador 2
     pipe(pipe21);  // creo pipe jugador 2 a jugador 1
-     
+    pipe(pipe13);  // creo pipe jugador 1 a jugador 3
+    pipe(pipe31);  // creo pipe jugador 3 a jugador 1
+    pipe(pipe14);  // creo pipe jugador 1 a jugador 4
+    pipe(pipe41);  // creo pipe jugador 4 a jugador 1
+
     jugador2 = fork();  // 2 procesos
     if (jugador2 >0){    //Proceso Padre
-        pipe(pipe13);
+        
         jugador3 = fork();  // 3 procesos
         if (jugador3 >0){ // Proceso Padre
-            pipe(pipe14);
             jugador4=fork(); // 4 procesos
             if (jugador4 == 0){
                 jugador4 = getpid();
@@ -201,7 +204,6 @@ int main(){
         else if (jugador3 == 0){
             jugador3 = getpid();
         }
-        
     }
     else if (jugador2 == 0){
         jugador2 = getpid();
@@ -209,72 +211,148 @@ int main(){
     
     pid = getpid();
 
+    // Se separan los procesos en sus respectivos ciclos para comenzar la comunicación entre ellos:
     if (pid == jugador1){ // Proceso del jugador 1
-
+        //Se cierran las conexiones read y write de los pipes del padre con los respectivos hijos:
         close(pipe12[0]); // cierro el modo de lectura de jugador 1 a jugador 2
         close(pipe21[1]); // cierro el modo de escritura de jugador 2 a jugador 1
-
-        printf("Soy el Jugador1 con pid %d\n",pid);
-        //write(pipe12[1],"1",2);
-        char mensaje[1];
-        /*
-        while((read(pipe21[0],mensaje,8))<0);
-        printf("me llego el mensaje: %s\n",mensaje);
-        */
-
+        close(pipe13[0]); // cierro el modo de lectura de jugador 1 a jugador 3
+        close(pipe31[1]); // cierro el modo de escritura de jugador 3 a jugador 1
+        close(pipe14[0]); // cierro el modo de lectura de jugador 1 a jugador 4
+        close(pipe41[1]); // cierro el modo de escritura de jugador 4 a jugador 1
+        
+        char mensaje[2];
+        int turno = 1;      //Variable que indica el turno que se esta jugando
+        int incremento = 1; //Variable que determina si va en direccion normal (1) o reverse (3)
+        int ganador = 0;    //Variable que guardara el jugador ganador
         while (1){
-            printf("Escribe el mensaje al hijo: ");
-            scanf("%s",mensaje);
-            write(pipe12[1],mensaje,1);
-            if (strcmp(mensaje,"3")==0){
+            if (fabs(turno%4) == 1){  // Turno jugador1
+                printf("\nTURNO DE JUGADOR 1 \n");
+                printf("OPCIONES DE JUGADA: \n   (1) Jugar carta normal \n   (2) Jugar reverse \n   (3) Jugar salto \n   (4) Gané el juego! \n INGRESE OPCION: ");
+                scanf("%s",mensaje);
+                if (strcmp(mensaje,"4")==0) ganador = 1; //Vemos si es el jugador ganador  
+            }
+            else if (fabs(turno%4) == 2){  // Turno jugador2
+                strcpy(mensaje,"1");
+                write(pipe12[1],mensaje,1); //Se le envia mensaje de iniciar turno
+                while((read(pipe21[0],mensaje,1))<0);   //Se espera hasta recibir mensaje de turno finalizado
+                if (strcmp(mensaje,"4")==0) ganador = 2;    //Vemos si es el jugador ganador
+            }
+            else if (fabs(turno%4) == 3){  // Turno jugador3
+                strcpy(mensaje,"1");
+                write(pipe13[1],mensaje,1); //Se le envia mensaje de iniciar turno
+                while((read(pipe31[0],mensaje,1))<0);   //Se espera hasta recibir mensaje de turno finalizado
+                if (strcmp(mensaje,"4")==0) ganador = 3;    //Vemos si es el jugador ganador
+            }
+            else if (fabs(turno%4) == 0){  // 
+                strcpy(mensaje,"1");
+                write(pipe14[1],mensaje,1); //Se le envia mensaje de iniciar turno
+                while((read(pipe41[0],mensaje,1))<0);   //Se espera hasta recibir mensaje de turno finalizado
+                if (strcmp(mensaje,"4")==0) ganador = 4;    //Vemos si es el jugador ganador
+            }
+
+            // Manejo de opciones:
+            if (strcmp(mensaje,"2") == 0){
+                if (incremento == 3) incremento = 1; //Sentido normal
+                else{ incremento = 3; } //Sentido inverso
+            }
+            
+            else if (strcmp(mensaje,"3")==0) turno = turno + incremento;
+            else if (strcmp(mensaje,"4")==0){
+                strcpy(mensaje,"0"); //Se le envia "0" al todos los hijos cuando algun jugador gano la partida. 
+                write(pipe12[1],mensaje,1);
+                write(pipe13[1],mensaje,1);
+                write(pipe14[1],mensaje,1);
+                printf("\n\nEl ganador es el jugador %d \n",ganador);
+                printf("FIN DEL JUEGO \n");
                 break;
             }
-            while((read(pipe21[0],mensaje,1))<0);
-            printf("Soy el padre y lei: %s\n",mensaje);
-            
+            turno = turno + incremento; //Se mueve al siguiente turno
         }
         
 
     }
     if (pid == jugador2){ // Proceso del jugador 2
-
+        //Se cierran todos los pipes de los otros jugadores:
+        close(pipe13[1]); 
+        close(pipe13[0]);
+        close(pipe31[1]); 
+        close(pipe31[0]);
+        close(pipe14[1]); 
+        close(pipe14[0]);
+        close(pipe41[1]); 
+        close(pipe41[0]);
+        //Se cierran las conexiones read y write de los respectivos pipes con el padre (jugador 1):
         close(pipe12[1]);  // cierro el modo escritura de jugador 1 a jugador 2
         close(pipe21[0]);  // cierro el modo lectura de jugador 2 a jugador 1 
-         
-        printf("Soy el Jugador2 con pid %d\n",pid);
-        char mensaje[1];
-        //while((read(pipe12[0],mensaje,2))<0);
-        /*
-        if (mensaje ==0){
-            printf("no ha llegado ningun mensaje");
-        }
-        if (strcmp(mensaje,"1")==0){
-            printf("me llego el mensaje: %s \n",mensaje);
-        }
-        write(pipe21[1],"termine",7);
-        */
+
+        char mensaje[2];
         while (1){
             while((read(pipe12[0],mensaje,1))<0);
-            printf("Soy el hijo y lei: %s\n",mensaje);
-            if (strcmp(mensaje,"3")==0){
+            if (strcmp(mensaje,"0")==0){
                 break;
             }
-            printf("Escribe el mensaje al padre: ");
+            printf("\nTURNO DE JUGADOR 2 \n");
+            printf("OPCIONES DE JUGADA: \n   (1) Jugar carta normal \n   (2) Jugar reverse \n   (3) Jugar salto \n   (4) Gané el juego! \n INGRESE OPCION: ");
             scanf("%s",mensaje);
-            write(pipe21[1],mensaje,1);
-            
-            
-            
+            write(pipe21[1],mensaje,1); 
         }
         
         
     }
     else if (pid == jugador3){
-        printf("Soy el Jugador3 con pid %d\n",pid);
+        //Se cierran todos los pipes de los otros jugadores:
+        close(pipe12[1]); 
+        close(pipe12[0]);
+        close(pipe21[1]); 
+        close(pipe21[0]);
+        close(pipe14[1]); 
+        close(pipe14[0]);
+        close(pipe41[1]); 
+        close(pipe41[0]);
+        //Se cierran las conexiones read y write de los respectivos pipes con el padre (jugador 1):
+        close(pipe13[1]);  // cierro el modo escritura de jugador 1 a jugador 3
+        close(pipe31[0]);  // cierro el modo lectura de jugador 3 a jugador 1
+
+        char mensaje[2];
+        while (1){
+            while((read(pipe13[0],mensaje,1))<0);
+            if (strcmp(mensaje,"0")==0){
+                break;
+            }
+            printf("\nTURNO DE JUGADOR 3 \n");
+            printf("OPCIONES DE JUGADA: \n   (1) Jugar carta normal \n   (2) Jugar reverse \n   (3) Jugar salto \n   (4) Gané el juego! \n INGRESE OPCION: ");
+            scanf("%s",mensaje);
+            write(pipe31[1],mensaje,1); 
+        }
+        
     }
     else if (pid == jugador4){
-        printf("Soy el Jugador4 con pid %d\n",pid);
-    }
+        //Se cierran todos los pipes de los otros jugadores:
+        close(pipe13[1]); 
+        close(pipe13[0]);
+        close(pipe31[1]); 
+        close(pipe31[0]);
+        close(pipe12[1]); 
+        close(pipe12[0]);
+        close(pipe21[1]); 
+        close(pipe21[0]);
+        //Se cierran las conexiones read y write de los respectivos pipes con el padre (jugador 1):
+        close(pipe14[1]);  // cierro el modo escritura de jugador 1 a jugador 4
+        close(pipe41[0]);  // cierro el modo lectura de jugador 4 a jugador 1 
 
+        char mensaje[2];
+        while (1){
+            while((read(pipe14[0],mensaje,1))<0);
+            if (strcmp(mensaje,"0")==0){
+                break;
+            }
+            printf("\nTURNO DE JUGADOR 4 \n");
+            printf("OPCIONES DE JUGADA: \n   (1) Jugar carta normal \n   (2) Jugar reverse \n   (3) Jugar salto \n   (4) Gané el juego! \n INGRESE OPCION: ");
+            scanf("%s",mensaje);
+            write(pipe41[1],mensaje,1); 
+        }
+    }
+    
     return 0;
 }
