@@ -166,5 +166,112 @@ int main(){
     sepa que esta en la carpeta mazo:*/
     /*Mover_Carta_especifica("mazo","jugador1","2_rojo_1.txt");*/
     
+    int pipe12[2];  // pipes entre jugador 1 y jugador 2
+    int pipe21[2];
+
+    int pipe13[2];  // pipes entre jugador 1 y jugador 3
+    int pipe31[2];
+
+    int pipe14[2];  // pipes entre jugador 1 y jugador 4
+    int pipe41[2];
+
+    int jugador1 = getpid();
+    int jugador2 = -1;
+    int jugador3 = -1;
+    int jugador4 = -1;
+    int pid;
+
+    pipe(pipe12);  // creo pipe jugador 1 a jugador 2
+    pipe(pipe21);  // creo pipe jugador 2 a jugador 1
+     
+    jugador2 = fork();  // 2 procesos
+    if (jugador2 >0){    //Proceso Padre
+        pipe(pipe13);
+        jugador3 = fork();  // 3 procesos
+        if (jugador3 >0){ // Proceso Padre
+            pipe(pipe14);
+            jugador4=fork(); // 4 procesos
+            if (jugador4 == 0){
+                jugador4 = getpid();
+            }
+        }
+        else if (jugador3 == 0){
+            jugador3 = getpid();
+        }
+        
+    }
+    else if (jugador2 == 0){
+        jugador2 = getpid();
+    }
+    
+    pid = getpid();
+
+    if (pid == jugador1){ // Proceso del jugador 1
+
+        close(pipe12[0]); // cierro el modo de lectura de jugador 1 a jugador 2
+        close(pipe21[1]); // cierro el modo de escritura de jugador 2 a jugador 1
+
+        printf("Soy el Jugador1 con pid %d\n",pid);
+        //write(pipe12[1],"1",2);
+        char mensaje[1];
+        /*
+        while((read(pipe21[0],mensaje,8))<0);
+        printf("me llego el mensaje: %s\n",mensaje);
+        */
+
+        while (1){
+            printf("Escribe el mensaje al hijo: ");
+            scanf("%s",mensaje);
+            write(pipe12[1],mensaje,1);
+            if (strcmp(mensaje,"3")==0){
+                break;
+            }
+            while((read(pipe21[0],mensaje,1))<0);
+            printf("Soy el padre y lei: %s\n",mensaje);
+            
+        }
+        
+
+    }
+    if (pid == jugador2){ // Proceso del jugador 2
+
+        close(pipe12[1]);  // cierro el modo escritura de jugador 1 a jugador 2
+        close(pipe21[0]);  // cierro el modo lectura de jugador 2 a jugador 1 
+         
+        printf("Soy el Jugador2 con pid %d\n",pid);
+        char mensaje[1];
+        //while((read(pipe12[0],mensaje,2))<0);
+        /*
+        if (mensaje ==0){
+            printf("no ha llegado ningun mensaje");
+        }
+        if (strcmp(mensaje,"1")==0){
+            printf("me llego el mensaje: %s \n",mensaje);
+        }
+        write(pipe21[1],"termine",7);
+        */
+        while (1){
+            while((read(pipe12[0],mensaje,1))<0);
+            printf("Soy el hijo y lei: %s\n",mensaje);
+            if (strcmp(mensaje,"3")==0){
+                break;
+            }
+            printf("Escribe el mensaje al padre: ");
+            scanf("%s",mensaje);
+            write(pipe21[1],mensaje,1);
+            
+            
+            
+        }
+        
+        
+    }
+    else if (pid == jugador3){
+        printf("Soy el Jugador3 con pid %d\n",pid);
+    }
+    else if (pid == jugador4){
+        printf("Soy el Jugador4 con pid %d\n",pid);
+    }
+
     return 0;
 }
