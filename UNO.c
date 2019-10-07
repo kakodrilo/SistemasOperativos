@@ -4,6 +4,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include<time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 /* Función que revisa si existe una carpeta con el nombre pasado por parámetro
     retorna 0 si no existe
