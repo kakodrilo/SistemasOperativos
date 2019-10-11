@@ -201,6 +201,9 @@ int main(){
         Mover_Carta_random("mazo","jugador4");
     }
 
+    /*Carta inicial*/
+    Mover_Carta_random("mazo","ultimaCarta");
+
     //----------------------------------------------------------------------------------------------------//
     /* CREACION DE JUGADORES Y COMUNICACION ENTRE ELLOS */
     
