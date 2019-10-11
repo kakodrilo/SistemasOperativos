@@ -3,7 +3,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <sys/stat.h>
-#include<time.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -58,7 +58,7 @@ void Crear_Archivo(char nombre_archivo[], char carpeta[]){
 */
 void Generar_Cartas(char color[]){
     char carta[40];
-    sprintf(carta,"0_%s.txt",color);
+    sprintf(carta,"0_%s_1.txt",color);
     Crear_Archivo(carta,"mazo");  // se crea la carta 0 (1 de cada color)
     int i;
     for (i = 1; i <= 9; i++){
@@ -68,13 +68,13 @@ void Generar_Cartas(char color[]){
         Crear_Archivo(carta,"mazo");
 
         if (i < 3){      // se generan las cartas de reversa, +2 y salto (2 de cada color)
-            sprintf(carta,"+2_%s_%d.txt",color,i);
+            sprintf(carta,"+_%s_%d.txt",color,i);
             Crear_Archivo(carta,"mazo");
 
-            sprintf(carta,"reversa_%s_%d.txt",color,i);
+            sprintf(carta,"r_%s_%d.txt",color,i);
             Crear_Archivo(carta,"mazo");
 
-            sprintf(carta,"salto_%s_%d.txt",color,i);
+            sprintf(carta,"s_%s_%d.txt",color,i);
             Crear_Archivo(carta,"mazo");
         }   
     }
@@ -87,10 +87,10 @@ void Generar_CartasEspeciales(){
     int i;
     char carta_especial[40];
     for (i = 1; i <= 4; i++){          // se generan las cartas especiales de cambio de color y +4 (4 de cada una)
-        sprintf(carta_especial,"+4_%d.txt",i);
+        sprintf(carta_especial,"4_n_%d.txt",i);
         Crear_Archivo(carta_especial,"mazo");
 
-        sprintf(carta_especial,"colores_%d.txt",i);
+        sprintf(carta_especial,"c_n_%d.txt",i);
         Crear_Archivo(carta_especial,"mazo");
     }
 }
@@ -139,6 +139,41 @@ void Mover_Carta_especifica(char carpeta_origen[],char carpeta_destino[], char c
     remove(borrar); 
 }
 
+/* Función que compara una carta (string) recibida como parámetro con la última carta jugada 
+(carta en carpeta ultimaCarta) y retorna un 1 si es válido poner la carta, o un 0 si no es válido
+*/
+int carta_valida(char carta[]){
+     /* ver todos los archivos de la carpeta origen*/
+    struct dirent **resultados = NULL;
+    int numeroResultados;
+    numeroResultados = scandir ("ultimaCarta", &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
+    char ultima_carta[strlen(resultados[0]->d_name)];
+    strcpy(ultima_carta,resultados[0]->d_name);
+
+    //Se libera la memoria usada en el arreglo resultados
+    int i;
+    for (i=0; i<numeroResultados; i++){  
+        free (resultados[i]);
+        resultados[i] = NULL;
+    }
+    free(resultados);  // se libera el puntero al arreglo
+    resultados = NULL;
+    
+    //Se comparan las cartas
+    if (carta[2]!='n'){
+        if (( carta[0] == ultima_carta[0]) || (carta[2] == ultima_carta[2])){
+            return 1;
+        }
+        else{
+            return 0;
+        }
+        
+    }
+    else{
+        return 1;
+    }
+}
+
 int main(){
     srand(time(NULL));
 
@@ -151,10 +186,10 @@ int main(){
     Crear_Carpeta("ultimaCarta");
 
     /* Crear las cartas en el mazo*/
-    Generar_Cartas("azul");
-    Generar_Cartas("rojo");
-    Generar_Cartas("verde");
-    Generar_Cartas("amarillo");
+    Generar_Cartas("z");
+    Generar_Cartas("r");
+    Generar_Cartas("v");
+    Generar_Cartas("a");
     Generar_CartasEspeciales();
 
     /* Repartir las cartas iniciales*/
