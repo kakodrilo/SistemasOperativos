@@ -1,6 +1,8 @@
 {
     "C_Cpp.errorSquiggles": "Disabled",
     "files.associations": {
-        "types.h": "c"
+        "types.h": "c",
+        "wait.h": "c",
+        "unistd.h": "c"
     }
 }
