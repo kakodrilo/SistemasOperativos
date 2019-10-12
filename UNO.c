@@ -174,80 +174,106 @@ int carta_valida(char carta[]){
     }
 }
 
+/*  Función que muestra por pantalla una carta (String) pasada por parámetro
+    con la opción i pasada por parámetro*/
+
 void ImprimirCarta(char nombre[], int i){
-    char color[20];
-    if (nombre[2]=='z'){
-        strcpy(color,"azul");
+    char color[20];  // aquí se guardará el color de la carta
+    char colorTerminal[20];  // aquí se guardará el codigo del color por terminal
+
+    if (nombre[2]=='z'){  // la carta es azul
+        strcpy(color,"azul\033[0m");
+        strcpy(colorTerminal,"\033[34m");
     }
-    else if (nombre[2]=='r'){
-        strcpy(color,"rojo");
+    else if (nombre[2]=='r'){ // la carta es roja
+        strcpy(color,"rojo\033[0m");
+        strcpy(colorTerminal,"\033[31m");
     }
-    else if (nombre[2]=='a'){
-        strcpy(color,"amarillo");
+    else if (nombre[2]=='a'){ // la carta es amarilla
+        strcpy(color,"amarillo\033[0m");
+        strcpy(colorTerminal,"\033[33m");
     }
-    else if (nombre[2]=='v'){
-        strcpy(color,"verde");
+    else if (nombre[2]=='v'){ // la carta es verde
+        strcpy(color,"verde\033[0m");
+        strcpy(colorTerminal,"\033[32m");
     }
     else{
-        strcpy(color,"");
+        strcpy(color,""); // la carta es especial sin color
+        strcpy(colorTerminal,"");
+
     }
-    char tipo[20];
-    if (nombre[0]=='+'){
+    char tipo[20];   // aquí se guardara el nombre de la carta
+    if (nombre[0]=='+'){  // +2
         strcpy(tipo,"+2");
     }
-    else if (nombre[0]=='r'){
+    else if (nombre[0]=='r'){  // reversa
         strcpy(tipo,"reversa");
     }
-    else if (nombre[0]=='s'){
+    else if (nombre[0]=='s'){  // salto
         strcpy(tipo,"salto");
     }
-    else if (nombre[0]=='c'){
+    else if (nombre[0]=='c'){  // colores 
         strcpy(tipo,"colores");
     }
-    else if (nombre[0]=='4' && nombre[2]=='n'){
+    else if (nombre[0]=='4' && nombre[2]=='n'){  // +4
         strcpy(tipo,"+4");
     }
     else{
-        sprintf(tipo,"%c",nombre[0]);
+        sprintf(tipo,"%c",nombre[0]);  // cartas numericas
     }
-    printf(" (%d) %s %s \n",(i+1),tipo,color);
+    printf(" (%d)%s %s %s\n",i,colorTerminal,tipo,color);  // se muestra el resultado: (opcion) tipo color 
 }
 
-int MostrarCartas(char carpeta[]){
+/*  Función que mustra las cartas en la carpeta (String) pasada por parámetro como opciones, 
+    se incluye la opción de sacar una carta del mazo.
+    opciones == 1 -> inicio del turno, se muestra la opción de scar una carta del mazo.
+    opciones == 2 -> se ha sacado una carta del mazo, se da la opción de terminar el turno sin jugar una carta.
+    se retorna la posición en el arreglo resultados de la carta elegida.
+    se retorna -1 si es que el jugador pasa su turno después de sacar una carta del mazo.
+*/
+int MostrarCartas(char carpeta[], int opciones){
     struct dirent **resultados = NULL;
     int numeroResultados;
-    numeroResultados = scandir (carpeta, &resultados, (*filtro), NULL); 
-
+    numeroResultados = scandir (carpeta, &resultados, (*filtro), NULL); // se extraen los archivos de la carpeta
     int i;
     printf(" Elige una Opcion:\n\nCartas en mano:\n\n");
     for (i = 0; i < numeroResultados; i++){
-        ImprimirCarta(resultados[i]->d_name,i);
+        ImprimirCarta(resultados[i]->d_name,i);  // se muestran las cartas en la mano del jugador
     }
-    printf("\n(%d) Sacar carta",(i+1));
-
+    if (opciones == 1){
+        printf("\n(%d) Sacar carta\n",(i+1));
+    }
+    else{
+        printf("\n(%d) Terminar turno\n",(i+1));
+    }
     int posicion = i;
 
-    for (i=0; i<numeroResultados; i++){  
+    for (i=0; i<numeroResultados; i++){   // se libera la memoria
         free (resultados[i]);
         resultados[i] = NULL;
     }
     free(resultados); 
     resultados = NULL;
 
-    printf("\nIngrese Opcion: ");
+    printf("Ingrese Opcion: ");  // se extrae la opcion elegida 
     int opcion;
     scanf("%d",&opcion);
 
-    if (opcion <= posicion){
-        printf("%d\n",opcion-1);
+    while (opcion > (posicion+1)){  // se verifica que la opcion sea válida
+        printf("Ingrese Opcion válida: ");
+        scanf("%d",&opcion);
+    }
+    
+    if (opcion <= posicion){  // la opcion elegida es una carta, se retorna lla posicion en el arreglo
         return opcion-1;
     }
-    else if (opcion == (posicion+1)){
-        printf("%d\n",-1);
-        return -1;
+    else if (opcion == (posicion+1) && opciones == 1){ // la opción es sacar una carta
+        Mover_Carta_random("mazo",carpeta); // se mueve una carta random
+        return MostrarCartas(carpeta,2); // se llamma de nuevo a la funcion ahora con la opcion de pasar el turno
     }
-    return -2;
+    return -1; // la opción es pasar el turno
 }
+
 
 
 int main(){
