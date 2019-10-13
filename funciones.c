@@ -37,16 +37,33 @@ int revisar_ultima_carta(char carpeta[]){
     return 0;
 }
 
-/* Función que borra la carta de la carpeta ultimaCarta, dejándola vacía. 
+/* Funcion que crea un archivo .txt según el nombre entregado en el nombre de la carpeta entregada
+    se asume que la carpeta existe.
 */
-void borrar_ultimaCarta(){
+void Crear_Archivo(char nombre_archivo[], char carpeta[]){
+    char direccion[40];  // string donde se guarda el string: carpeta/nombre_archivo.txt
+    sprintf(direccion,"%s/%s",carpeta,nombre_archivo);
+    FILE * archivo = fopen(direccion,"w"); // se crea el archivo vacío
+    if (archivo == NULL){
+        printf("Error al generar archivo %s\n",nombre_archivo);
+    }
+    fclose(archivo); // se cierra el archivo creado para liberar la memoria
+}
+
+/*Funcion mueve una carta aleatoria de la carpeta origen a la acrpeta destino*/
+void Mover_Carta_random(char carpeta_origen[],char carpeta_destino[]){
     /* ver todos los archivos de la carpeta origen*/
     struct dirent **resultados = NULL;
     int numeroResultados;
-    numeroResultados = scandir ("ultimaCarta", &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
+    numeroResultados = scandir (carpeta_origen, &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
+
+    if (numeroResultados != 0){
+        int aleatorio = (rand()%numeroResultados); //+2; // genero un random entre 2 y (numeroResultados -1): posiciones del arreglo que son utiles
+
     char nombre_archivo[40];
-    sprintf(nombre_archivo,"%s",resultados[0]->d_name); // se guarda el nombre del archivo buscado aleatoriamente
+    sprintf(nombre_archivo,"%s",resultados[aleatorio]->d_name); // se guarda el nombre del archivo buscado aleatoriamente
     
+
     int i;
     for (i=0; i<numeroResultados; i++){  //se libera la memoria usada en el arreglo resultados
         free (resultados[i]);
@@ -55,12 +72,14 @@ void borrar_ultimaCarta(){
     free(resultados);  // se libera el puntero al arreglo
     resultados = NULL;
 
+    Crear_Archivo(nombre_archivo,carpeta_destino); // se crea el archivo en la carpeta de destino
     char borrar[40];
-    sprintf(borrar,"%s/%s","ultimaCarta",nombre_archivo);    // se borra el archivo de la carpeta de origen
+    sprintf(borrar,"%s/%s",carpeta_origen,nombre_archivo);    // se borra el archivo de la carpeta de origen
     remove(borrar); 
+    }
 }
 
 int main(){
-    borrar_ultimaCarta();
+    Mover_Carta_random("mazo","jugador1");
     return 0;
 }
