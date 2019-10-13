@@ -23,7 +23,51 @@ int revisar_ultima_carta(char carpeta[]){
      /* ver todos los archivos de la carpeta origen*/
     struct dirent **resultados = NULL;
     int numeroResultados;
+    char nombre[40], color[20], colorTerminal[20], tipo[20];
     numeroResultados = scandir (carpeta, &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
+    if ((strcmp(carpeta,"ultimaCarta") == 0 ) && numeroResultados>0){
+        sprintf(nombre,"%s",resultados[0]->d_name);
+        if (nombre[2]=='z'){  // la carta es azul
+            strcpy(color,"azul\033[0m");
+            strcpy(colorTerminal,"\033[34m");
+        }
+        else if (nombre[2]=='r'){ // la carta es roja
+            strcpy(color,"rojo\033[0m");
+            strcpy(colorTerminal,"\033[31m");
+        }
+        else if (nombre[2]=='a'){ // la carta es amarilla
+            strcpy(color,"amarillo\033[0m");
+            strcpy(colorTerminal,"\033[33m");
+        }
+        else if (nombre[2]=='v'){ // la carta es verde
+            strcpy(color,"verde\033[0m");
+            strcpy(colorTerminal,"\033[32m");
+        }
+        else{
+            strcpy(color,""); // la carta es especial sin color
+            strcpy(colorTerminal,"");
+
+        }   
+        if (nombre[0]=='+'){  // +2
+            strcpy(tipo,"+2");
+        }
+        else if (nombre[0]=='r'){  // reversa
+            strcpy(tipo,"reversa");
+        }
+        else if (nombre[0]=='s'){  // salto
+            strcpy(tipo,"salto");
+        }
+        else if (nombre[0]=='c'){  // colores 
+            strcpy(tipo,"colores");
+        }
+        else if (nombre[0]=='x' && nombre[2]=='n'){  // +4
+            strcpy(tipo,"+4");
+        }
+        else{
+            sprintf(tipo,"%c",nombre[0]);  // cartas numericas
+        }
+        printf("\nLa última carta jugada es: %s %s %s\n",colorTerminal,tipo,color);
+    }
     int i;
     for (i=0; i<numeroResultados; i++){  //se libera la memoria usada en el arreglo resultados
         free (resultados[i]);
@@ -32,8 +76,8 @@ int revisar_ultima_carta(char carpeta[]){
     free(resultados);  // se libera el puntero al arreglo
     resultados = NULL;
 
+    if (numeroResultados == 0) return 2;
     if (numeroResultados == 1) return 1;
-    else if (numeroResultados == 0) return 2;
     return 0;
 }
 
@@ -103,9 +147,8 @@ void Mover_Carta_inicio(){
     char borrar[40];
     sprintf(borrar,"%s/%s","mazo",nombre_archivo);    // se borra el archivo de la carpeta de origen
     remove(borrar); 
-    
 }
 
 int main(){
-    Mover_Carta_inicio();
+    revisar_ultima_carta("ultimaCarta");
 }
