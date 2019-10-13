@@ -264,8 +264,8 @@ char Jugar_carta(char carta[],char carpeta_origen[]){
     if (carta[0]=='x' || carta[0] == 'c'){
         printf("Elegir color:\n (1) \033[34mAzul\033[0m \n (2) \033[31mRojo\033[0m \n (3) \033[33mAmarillo\033[0m \n (4) \033[32mVerde\033[0m\n Ingrese opción: ");
         scanf("%d",&eleccion);
-        sprintf(comando,"%s/%s",carpeta_origen,carta);
-        rmdir(comando);
+        sprintf(comando,"rm %s/%s",carpeta_origen,carta);
+        system(comando);
         if (eleccion == 1){
             sprintf(comando,"%c_z_%c.txt",carta[0],carta[4]);
         }
@@ -408,7 +408,7 @@ int revisar_ultima_carta(char carpeta[]){
         else if (nombre[0]=='c'){  // colores 
             strcpy(tipo,"colores");
         }
-        else if (nombre[0]=='x' && nombre[2]=='n'){  // +4
+        else if (nombre[0]=='x'){  // +4
             strcpy(tipo,"+4");
         }
         else{
@@ -552,7 +552,7 @@ int main(){
             if (fabs(turno%4) == 1){  // Turno jugador1
                 printf("\nTURNO DE JUGADOR 1 \n");
                 if (mensaje == '5'){
-                    printf("Jugador 1 saca 4 cartas");
+                    printf("Jugador 1 saca 4 cartas\n");
                     int i;
                     for ( i = 0; i < 4; i++){
                         Mover_Carta_random("mazo","jugador1");
@@ -560,7 +560,7 @@ int main(){
                     mensaje = '1';
                 }
                 else if (mensaje == '4'){
-                    printf("Jugador 1 saca 2 cartas");
+                    printf("Jugador 1 saca 2 cartas\n");
                     int i;
                     for ( i = 0; i < 2; i++){
                         Mover_Carta_random("mazo","jugador1");
@@ -568,7 +568,7 @@ int main(){
                     mensaje = '1';
                 }
                 else if (mensaje == '3'){
-                    printf("Jugador 1 es saltado");
+                    printf("Jugador 1 es saltado\n");
                     mensaje='1';
                 }
                 else{
@@ -787,7 +787,7 @@ int main(){
             }
             printf("\nTURNO DE JUGADOR 4 \n");
             if (mensaje == '5'){
-                printf("Jugador 4 saca 4 cartas");
+                printf("Jugador 4 saca 4 cartas\n");
                 int i;
                 for ( i = 0; i < 4; i++){
                     Mover_Carta_random("mazo","jugador4");
@@ -795,7 +795,7 @@ int main(){
                 mensaje = '1';
             }
             else if (mensaje == '4'){
-                printf("Jugador 4 saca 2 cartas");
+                printf("Jugador 4 saca 2 cartas\n");
                 int i;
                 for ( i = 0; i < 2; i++){
                     Mover_Carta_random("mazo","jugador4");
@@ -803,7 +803,7 @@ int main(){
                 mensaje = '1';
             }
             else if (mensaje == '3'){
-                printf("Jugador 4 es saltado");
+                printf("Jugador 4 es saltado\n");
                 mensaje = '1';
             }
             else{
