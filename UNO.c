@@ -110,8 +110,8 @@ void Mover_Carta_random(char carpeta_origen[],char carpeta_destino[]){
     int numeroResultados;
     numeroResultados = scandir (carpeta_origen, &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
 
-    
-    int aleatorio = (rand()%numeroResultados); //+2; // genero un random entre 2 y (numeroResultados -1): posiciones del arreglo que son utiles
+    if (numeroResultados != 0){
+        int aleatorio = (rand()%numeroResultados); //+2; // genero un random entre 2 y (numeroResultados -1): posiciones del arreglo que son utiles
 
     char nombre_archivo[40];
     sprintf(nombre_archivo,"%s",resultados[aleatorio]->d_name); // se guarda el nombre del archivo buscado aleatoriamente
@@ -129,6 +129,7 @@ void Mover_Carta_random(char carpeta_origen[],char carpeta_destino[]){
     char borrar[40];
     sprintf(borrar,"%s/%s",carpeta_origen,nombre_archivo);    // se borra el archivo de la carpeta de origen
     remove(borrar); 
+    }
 }
 
 /*Funcion mueve una carta especifica entregada como parametro desde una carpeta de origen a una de destino*/
@@ -261,25 +262,25 @@ char Jugar_carta(char carta[],char carpeta_origen[]){
     int eleccion;
     char comando[50];
     if (carta[0]=='x' || carta[0] == 'c'){
-        printf("Elegir color:\n (1) \033[34mAzul\033[0m \n (2) \033[31mRojo\033[0m \n (3) \033[33mAmarillo\033[0m \n (4) \033[32mVerde\033[0m");
+        printf("Elegir color:\n (1) \033[34mAzul\033[0m \n (2) \033[31mRojo\033[0m \n (3) \033[33mAmarillo\033[0m \n (4) \033[32mVerde\033[0m\n Ingrese opción: ");
         scanf("%d",&eleccion);
-        sprintf(comando,"rm %s/%s",carpeta_origen,carta);
-        system(comando);
+        sprintf(comando,"%s/%s",carpeta_origen,carta);
+        rmdir(comando);
         if (eleccion == 1){
-            scanf(comando,"%c_z_%c.txt",carta[0],carta[4]);
+            sprintf(comando,"%c_z_%c.txt",carta[0],carta[4]);
         }
         else if (eleccion == 2){
-            scanf(comando,"%c_r_%c.txt",carta[0],carta[4]);
+            sprintf(comando,"%c_r_%c.txt",carta[0],carta[4]);
         }
         else if (eleccion == 3){
-            scanf(comando,"%c_a_%c.txt",carta[0],carta[4]);
+            sprintf(comando,"%c_a_%c.txt",carta[0],carta[4]);
         }
         else{
-            scanf(comando,"%c_v_%c.txt",carta[0],carta[4]);
+            sprintf(comando,"%c_v_%c.txt",carta[0],carta[4]);
         }
         Crear_Archivo(comando,"ultimaCarta");
-        if (carta[0] == 'c')return '5';
-        return '6';
+        if (carta[0] == 'c')return '1';
+        return '5';
     } // retorno según el tipo
     Mover_Carta_especifica(carpeta_origen,"ultimaCarta",carta);
     if (carta[0]=='+') return '4';
@@ -304,7 +305,7 @@ char MostrarCartas(char carpeta[], int opciones){
     int i;
     printf(" Elige una Opcion:\n\nCartas en mano:\n\n");  
     for (i = 0; i < numeroResultados; i++){  // se muestran por pantalla las cartas en la carpeta del jugador
-        ImprimirCarta(resultados[i]->d_name,i);
+        ImprimirCarta(resultados[i]->d_name,(i+1));
     }
     if (opciones == 1){  // se da la opcion de sacar una carta al azar del mazo
         printf("\n(%d) Sacar carta\n",(i+1));
@@ -358,7 +359,7 @@ char MostrarCartas(char carpeta[], int opciones){
         return tipo;
     }
 
-    return '0'; // si se escoge terminar el turno retorno un -1
+    return '1'; // si se escoge terminar el turno retorno un 1
 }
 
 
@@ -370,7 +371,51 @@ int revisar_ultima_carta(char carpeta[]){
      /* ver todos los archivos de la carpeta origen*/
     struct dirent **resultados = NULL;
     int numeroResultados;
+    char nombre[40], color[20], colorTerminal[20], tipo[20];
     numeroResultados = scandir (carpeta, &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
+    if ((strcmp(carpeta,"ultimaCarta") == 0 ) && numeroResultados>0){
+        sprintf(nombre,"%s",resultados[0]->d_name);
+        if (nombre[2]=='z'){  // la carta es azul
+            strcpy(color,"azul\033[0m");
+            strcpy(colorTerminal,"\033[34m");
+        }
+        else if (nombre[2]=='r'){ // la carta es roja
+            strcpy(color,"rojo\033[0m");
+            strcpy(colorTerminal,"\033[31m");
+        }
+        else if (nombre[2]=='a'){ // la carta es amarilla
+            strcpy(color,"amarillo\033[0m");
+            strcpy(colorTerminal,"\033[33m");
+        }
+        else if (nombre[2]=='v'){ // la carta es verde
+            strcpy(color,"verde\033[0m");
+            strcpy(colorTerminal,"\033[32m");
+        }
+        else{
+            strcpy(color,""); // la carta es especial sin color
+            strcpy(colorTerminal,"");
+
+        }   
+        if (nombre[0]=='+'){  // +2
+            strcpy(tipo,"+2");
+        }
+        else if (nombre[0]=='r'){  // reversa
+            strcpy(tipo,"reversa");
+        }
+        else if (nombre[0]=='s'){  // salto
+            strcpy(tipo,"salto");
+        }
+        else if (nombre[0]=='c'){  // colores 
+            strcpy(tipo,"colores");
+        }
+        else if (nombre[0]=='x' && nombre[2]=='n'){  // +4
+            strcpy(tipo,"+4");
+        }
+        else{
+            sprintf(tipo,"%c",nombre[0]);  // cartas numericas
+        }
+        printf("\nLa última carta jugada es: %s %s %s\n",colorTerminal,tipo,color);
+    }
     int i;
     for (i=0; i<numeroResultados; i++){  //se libera la memoria usada en el arreglo resultados
         free (resultados[i]);
@@ -379,9 +424,36 @@ int revisar_ultima_carta(char carpeta[]){
     free(resultados);  // se libera el puntero al arreglo
     resultados = NULL;
 
+    if (numeroResultados == 0) return 2;
     if (numeroResultados == 1) return 1;
-    else if (numeroResultados == 0) return 2;
     return 0;
+}
+
+/*Función que mueve una carta inicial random a la carpeta ultimaCarta para comenzar el juego. Verifica
+que la carta movida no sea una carta espacial (+2,+4,salto)*/
+void Mover_Carta_inicio(){
+    /* ver todos los archivos de la carpeta origen*/
+    struct dirent **resultados = NULL;
+    int numeroResultados, aleatorio;
+    char nombre_archivo[40] = "s_r_1.txt";
+    numeroResultados = scandir ("mazo", &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
+    while (nombre_archivo[0]=='+' || nombre_archivo[0]=='x' || nombre_archivo[0]=='s' || nombre_archivo[0]=='c'){
+        aleatorio = (rand()%numeroResultados); //+2; // genero un random entre 2 y (numeroResultados -1): posiciones del arreglo que son utiles
+        sprintf(nombre_archivo,"%s",resultados[aleatorio]->d_name); // se guarda el nombre del archivo buscado aleatoriamente
+    }
+    int i;
+    for (i=0; i<numeroResultados; i++){  //se libera la memoria usada en el arreglo resultados
+        free (resultados[i]);
+        resultados[i] = NULL;
+    }
+    free(resultados);  // se libera el puntero al arreglo
+    resultados = NULL;
+
+    Crear_Archivo(nombre_archivo,"ultimaCarta"); // se crea el archivo en la carpeta de destino
+    char borrar[40];
+    sprintf(borrar,"%s/%s","mazo",nombre_archivo);    // se borra el archivo de la carpeta de origen
+    remove(borrar); 
+    
 }
 
 
@@ -414,7 +486,7 @@ int main(){
     }
 
     /*Carta inicial*/
-    Mover_Carta_random("mazo","ultimaCarta");
+    Mover_Carta_inicio();
 
     //----------------------------------------------------------------------------------------------------//
     /* CREACION DE JUGADORES Y COMUNICACION ENTRE ELLOS */
@@ -471,53 +543,125 @@ int main(){
         close(pipe14[0]); // cierro el modo de lectura de jugador 1 a jugador 4
         close(pipe41[1]); // cierro el modo de escritura de jugador 4 a jugador 1
         
-        char mensaje[2];
+        char mensaje = '1';
         int turno = 1;      //Variable que indica el turno que se esta jugando
         int incremento = 1; //Variable que determina si va en direccion normal (1) o reverse (3)
-        int ganador = 0;    //Variable que guardara el jugador ganador
-        while (1){
+        int v1,v2,v3,v4;
+        revisar_ultima_carta("ultimaCarta");
+        while (1){ 
             if (fabs(turno%4) == 1){  // Turno jugador1
                 printf("\nTURNO DE JUGADOR 1 \n");
-                printf("OPCIONES DE JUGADA: \n   (1) Jugar carta normal \n   (2) Jugar reverse \n   (3) Jugar salto \n   (4) Gané el juego! \n INGRESE OPCION: ");
-                scanf("%s",mensaje);
-                if (strcmp(mensaje,"4")==0) ganador = 1; //Vemos si es el jugador ganador  
+                if (mensaje == '5'){
+                    printf("Jugador 1 saca 4 cartas");
+                    int i;
+                    for ( i = 0; i < 4; i++){
+                        Mover_Carta_random("mazo","jugador1");
+                    }
+                    mensaje = '1';
+                }
+                else if (mensaje == '4'){
+                    printf("Jugador 1 saca 2 cartas");
+                    int i;
+                    for ( i = 0; i < 2; i++){
+                        Mover_Carta_random("mazo","jugador1");
+                    }
+                    mensaje = '1';
+                }
+                else if (mensaje == '3'){
+                    printf("Jugador 1 es saltado");
+                    mensaje='1';
+                }
+                else{
+                    mensaje = MostrarCartas("jugador1",1);
+                }
             }
             else if (fabs(turno%4) == 2){  // Turno jugador2
-                strcpy(mensaje,"1");
-                write(pipe12[1],mensaje,1); //Se le envia mensaje de iniciar turno
-                while((read(pipe21[0],mensaje,1))<0);   //Se espera hasta recibir mensaje de turno finalizado
-                if (strcmp(mensaje,"4")==0) ganador = 2;    //Vemos si es el jugador ganador
+                write(pipe12[1],&mensaje,1); //Se le envia mensaje de iniciar turno
+                while((read(pipe21[0],&mensaje,1))<0){};   //Se espera hasta recibir mensaje de turno finalizado
+                
             }
             else if (fabs(turno%4) == 3){  // Turno jugador3
-                strcpy(mensaje,"1");
-                write(pipe13[1],mensaje,1); //Se le envia mensaje de iniciar turno
-                while((read(pipe31[0],mensaje,1))<0);   //Se espera hasta recibir mensaje de turno finalizado
-                if (strcmp(mensaje,"4")==0) ganador = 3;    //Vemos si es el jugador ganador
+                printf("%c",mensaje);
+                write(pipe13[1],&mensaje,1); //Se le envia mensaje de iniciar turno
+                while((read(pipe31[0],&mensaje,1))<0){};   //Se espera hasta recibir mensaje de turno finalizado
+                printf("%c",mensaje);
             }
-            else if (fabs(turno%4) == 0){  // 
-                strcpy(mensaje,"1");
-                write(pipe14[1],mensaje,1); //Se le envia mensaje de iniciar turno
-                while((read(pipe41[0],mensaje,1))<0);   //Se espera hasta recibir mensaje de turno finalizado
-                if (strcmp(mensaje,"4")==0) ganador = 4;    //Vemos si es el jugador ganador
+            else if (fabs(turno%4) == 0){  // turno juagdor4
+                printf("%c",mensaje);
+                write(pipe14[1],&mensaje,1); //Se le envia mensaje de iniciar turno
+                while((read(pipe41[0],&mensaje,1))<0){};   //Se espera hasta recibir mensaje de turno finalizado
+                printf("%c",mensaje);
             }
 
-            // Manejo de opciones:
-            if (strcmp(mensaje,"2") == 0){
+            // Manejo de opciones: // 5 es +4, 6 colores,4 +2, salto 3, reversa 2, 1
+            if (mensaje == '2'){ // reversa
                 if (incremento == 3) incremento = 1; //Sentido normal
                 else{ incremento = 3; } //Sentido inverso
             }
-            
-            else if (strcmp(mensaje,"3")==0) turno = turno + incremento;
-            else if (strcmp(mensaje,"4")==0){
-                strcpy(mensaje,"0"); //Se le envia "0" al todos los hijos cuando algun jugador gano la partida. 
-                write(pipe12[1],mensaje,1);
-                write(pipe13[1],mensaje,1);
-                write(pipe14[1],mensaje,1);
-                printf("\n\nEl ganador es el jugador %d \n",ganador);
+            if (revisar_ultima_carta("mazo")==2){
+                mensaje = '0'; //Se le envia "0" al todos los hijos cuando algun jugador gano la partida. 
+                write(pipe12[1],&mensaje,1);
+                write(pipe13[1],&mensaje,1);
+                write(pipe14[1],&mensaje,1);
+                printf("\n\nNo quedan cartas en el mazo\n");
                 printf("FIN DEL JUEGO \n");
                 break;
             }
+            revisar_ultima_carta("ultimaCarta");
+            v1 = revisar_ultima_carta("jugador1");
+            v2 = revisar_ultima_carta("jugador2");
+            v3 = revisar_ultima_carta("jugador3");
+            v4 = revisar_ultima_carta("jugador4");
+            if (v1==2){
+                mensaje='0'; //Se le envia "0" al todos los hijos cuando algun jugador gano la partida. 
+                write(pipe12[1],&mensaje,1);
+                write(pipe13[1],&mensaje,1);
+                write(pipe14[1],&mensaje,1);
+                printf("\n\nEl ganador es el jugador 1 \n");
+                printf("FIN DEL JUEGO \n");
+                break;
+            }
+            if (v2==2){
+                mensaje='0'; //Se le envia "0" al todos los hijos cuando algun jugador gano la partida. 
+                write(pipe12[1],&mensaje,1);
+                write(pipe13[1],&mensaje,1);
+                write(pipe14[1],&mensaje,1);
+                printf("\n\nEl ganador es el jugador 2 \n");
+                printf("FIN DEL JUEGO \n");
+                break;
+            }
+            if (v3==2){
+                mensaje='0'; //Se le envia "0" al todos los hijos cuando algun jugador gano la partida. 
+                write(pipe12[1],&mensaje,1);
+                write(pipe13[1],&mensaje,1);
+                write(pipe14[1],&mensaje,1);
+                printf("\n\nEl ganador es el jugador 3 \n");
+                printf("FIN DEL JUEGO \n");
+                break;
+            }
+            if (v4==2){
+                mensaje='0'; //Se le envia "0" al todos los hijos cuando algun jugador gano la partida. 
+                write(pipe12[1],&mensaje,1);
+                write(pipe13[1],&mensaje,1);
+                write(pipe14[1],&mensaje,1);
+                printf("\n\nEl ganador es el jugador 4 \n");
+                printf("FIN DEL JUEGO \n");
+                break;
+            }
+            if (v1==1){
+                printf("\n\nEl jugador 1 tiene sólo 1 carta \n");
+            }
+            if (v2==1){
+                printf("\n\nEl jugador 2 tiene sólo 1 carta \n");
+            }
+            if (v3==1){
+                printf("\n\nEl jugador 3 tiene sólo 1 carta \n");
+            }
+            if (v4==1){
+                printf("\n\nEl jugador 4 tiene sólo 1 carta \n");
+            }
             turno = turno + incremento; //Se mueve al siguiente turno
+            printf("envio: %c",mensaje);
         }
         
 
@@ -536,16 +680,41 @@ int main(){
         close(pipe12[1]);  // cierro el modo escritura de jugador 1 a jugador 2
         close(pipe21[0]);  // cierro el modo lectura de jugador 2 a jugador 1 
 
-        char mensaje[2];
-        while (1){
-            while((read(pipe12[0],mensaje,1))<0);
-            if (strcmp(mensaje,"0")==0){
+        char mensaje;
+        while (1){ 
+            while((read(pipe12[0],&mensaje,1))<0){};
+            printf("recibo: %c",mensaje);
+            if (mensaje=='0'){ // el papá le manda un cero si el juego ha terminado
                 break;
             }
             printf("\nTURNO DE JUGADOR 2 \n");
-            printf("OPCIONES DE JUGADA: \n   (1) Jugar carta normal \n   (2) Jugar reverse \n   (3) Jugar salto \n   (4) Gané el juego! \n INGRESE OPCION: ");
-            scanf("%s",mensaje);
-            write(pipe21[1],mensaje,1); 
+            if (mensaje == '5'){  // debe sacar 4 cartas y finalizar turno
+                printf("Jugador 2 saca 4 cartas\n");
+                int i;
+                for ( i = 0; i < 4; i++){
+                    Mover_Carta_random("mazo","jugador2");
+                }
+                mensaje = '1';
+                write(pipe21[1],&mensaje,1); 
+            }
+            else if (mensaje == '4'){ // sacar dos cartas y finalizar
+                printf("Jugador 2 saca 2 cartas\n");
+                int i;
+                for ( i = 0; i < 2; i++){
+                    Mover_Carta_random("mazo","jugador2");
+                }
+                mensaje = '1';
+                write(pipe21[1],&mensaje,1); 
+            }
+            else if (mensaje == '3'){
+                printf("Jugador 2 es saltado\n");
+                mensaje = '1';
+                write(pipe21[1],&mensaje,1); 
+            }
+            else{
+                mensaje = MostrarCartas("jugador2",1);
+                write(pipe21[1],&mensaje,1); 
+            }
         }
         
         
@@ -564,16 +733,40 @@ int main(){
         close(pipe13[1]);  // cierro el modo escritura de jugador 1 a jugador 3
         close(pipe31[0]);  // cierro el modo lectura de jugador 3 a jugador 1
 
-        char mensaje[2];
+        char mensaje;
         while (1){
-            while((read(pipe13[0],mensaje,1))<0);
-            if (strcmp(mensaje,"0")==0){
+            while((read(pipe13[0],&mensaje,1))<0){};
+            if (mensaje == '0'){ // el papá le manda un cero si el juego ha terminado
                 break;
             }
             printf("\nTURNO DE JUGADOR 3 \n");
-            printf("OPCIONES DE JUGADA: \n   (1) Jugar carta normal \n   (2) Jugar reverse \n   (3) Jugar salto \n   (4) Gané el juego! \n INGRESE OPCION: ");
-            scanf("%s",mensaje);
-            write(pipe31[1],mensaje,1); 
+            if (mensaje == '5'){
+                printf("Jugador 3 saca 4 cartas\n");
+                int i;
+                for ( i = 0; i < 4; i++){
+                    Mover_Carta_random("mazo","jugador3");
+                }
+                mensaje = '1';
+                write(pipe31[1],&mensaje,1); 
+            }
+            else if (mensaje == '4'){
+                printf("Jugador 3 saca 2 cartas\n");
+                int i;
+                for ( i = 0; i < 2; i++){
+                    Mover_Carta_random("mazo","jugador3");
+                }
+                mensaje = '1';
+                write(pipe31[1],&mensaje,1); 
+            }
+            else if (mensaje == '3'){
+                printf("Jugador 3 es saltado\n");
+                mensaje = '1';
+                write(pipe31[1],&mensaje,1); 
+            }
+            else{
+                mensaje = MostrarCartas("jugador3",1);
+                write(pipe31[1],&mensaje,1); 
+            } 
         }
         
     }
@@ -591,16 +784,40 @@ int main(){
         close(pipe14[1]);  // cierro el modo escritura de jugador 1 a jugador 4
         close(pipe41[0]);  // cierro el modo lectura de jugador 4 a jugador 1 
 
-        char mensaje[2];
+        char mensaje;
         while (1){
-            while((read(pipe14[0],mensaje,1))<0);
-            if (strcmp(mensaje,"0")==0){
+            while((read(pipe14[0],&mensaje,1))<0){};
+            if (mensaje == '0'){ // el papá le manda un cero si el juego ha terminado
                 break;
             }
             printf("\nTURNO DE JUGADOR 4 \n");
-            printf("OPCIONES DE JUGADA: \n   (1) Jugar carta normal \n   (2) Jugar reverse \n   (3) Jugar salto \n   (4) Gané el juego! \n INGRESE OPCION: ");
-            scanf("%s",mensaje);
-            write(pipe41[1],mensaje,1); 
+            if (mensaje == '5'){
+                printf("Jugador 4 saca 4 cartas");
+                int i;
+                for ( i = 0; i < 4; i++){
+                    Mover_Carta_random("mazo","jugador4");
+                }
+                mensaje = '1';
+                write(pipe41[1],&mensaje,1); 
+            }
+            else if (mensaje == '4'){
+                printf("Jugador 4 saca 2 cartas");
+                int i;
+                for ( i = 0; i < 2; i++){
+                    Mover_Carta_random("mazo","jugador4");
+                }
+                mensaje = '1';
+                write(pipe41[1],&mensaje,1); 
+            }
+            else if (mensaje == '3'){
+                printf("Jugador 4 es saltado");
+                mensaje = '1';
+                write(pipe41[1],&mensaje,1); 
+            }
+            else{
+                mensaje = MostrarCartas("jugador4",1);
+                write(pipe41[1],&mensaje,1); 
+            } 
         }
     }
     
