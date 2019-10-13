@@ -238,6 +238,34 @@ int MostrarCartas(char carpeta[], int opciones){
     }
     int posicion = i;
 
+
+    printf("Ingrese Opcion: ");
+    int opcion;
+    scanf("%d",&opcion);
+
+    while (opcion > (posicion+1) || opcion < 1){ 
+        printf("Ingrese Opcion válida: ");
+        scanf("%d",&opcion);
+    }
+
+
+    while (opcion <= posicion && carta_valida(resultados[opcion-1]->d_name)==0){
+        printf("Ingrese carta válida: ");
+        scanf("%d",&opcion);
+    }
+
+    if (opcion == (posicion+1) && opciones == 1){
+        for (i=0; i<numeroResultados; i++){  
+            free (resultados[i]);
+            resultados[i] = NULL;
+        }
+        free(resultados); 
+        resultados = NULL;
+
+        Mover_Carta_random("mazo",carpeta);
+        return MostrarCartas(carpeta,2);
+    }
+
     for (i=0; i<numeroResultados; i++){  
         free (resultados[i]);
         resultados[i] = NULL;
@@ -245,22 +273,10 @@ int MostrarCartas(char carpeta[], int opciones){
     free(resultados); 
     resultados = NULL;
 
-    printf("Ingrese Opcion: ");
-    int opcion;
-    scanf("%d",&opcion);
-
-    while (opcion > (posicion+1)){
-        printf("Ingrese Opcion válida: ");
-        scanf("%d",&opcion);
-    }
-    
     if (opcion <= posicion){
         return opcion-1;
     }
-    else if (opcion == (posicion+1) && opciones == 1){
-        Mover_Carta_random("mazo",carpeta);
-        return MostrarCartas(carpeta,2);
-    }
+
     return -1;
 }
 

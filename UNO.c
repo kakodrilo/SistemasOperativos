@@ -234,44 +234,62 @@ void ImprimirCarta(char nombre[], int i){
 int MostrarCartas(char carpeta[], int opciones){
     struct dirent **resultados = NULL;
     int numeroResultados;
-    numeroResultados = scandir (carpeta, &resultados, (*filtro), NULL); // se extraen los archivos de la carpeta
+    numeroResultados = scandir (carpeta, &resultados, (*filtro), NULL);  // se extraen los archivos de la carpeta 
+
+    /* Monstrar opciones de Juego*/
     int i;
-    printf(" Elige una Opcion:\n\nCartas en mano:\n\n");
-    for (i = 0; i < numeroResultados; i++){
-        ImprimirCarta(resultados[i]->d_name,i);  // se muestran las cartas en la mano del jugador
+    printf(" Elige una Opcion:\n\nCartas en mano:\n\n");  
+    for (i = 0; i < numeroResultados; i++){  // se muestran por pantalla las cartas en la carpeta del jugador
+        ImprimirCarta(resultados[i]->d_name,i);
     }
-    if (opciones == 1){
+    if (opciones == 1){  // se da la opcion de sacar una carta al azar del mazo
         printf("\n(%d) Sacar carta\n",(i+1));
     }
-    else{
+    else{  // se da la opción de terminar el turno
         printf("\n(%d) Terminar turno\n",(i+1));
     }
     int posicion = i;
 
-    for (i=0; i<numeroResultados; i++){   // se libera la memoria
+    printf("Ingrese Opcion: ");
+    int opcion;
+    scanf("%d",&opcion);
+
+    /* Manejo de Opción seleccionada*/
+    while (opcion > (posicion+1) || opcion < 1){  // se verifica que la opción sea válida
+        printf("Ingrese Opcion válida: ");
+        scanf("%d",&opcion);
+    }
+
+    // si se elige una carta se verifica que sea una carta jugable
+    while (opcion <= posicion && carta_valida(resultados[opcion-1]->d_name)==0){ 
+        printf("Ingrese carta válida: ");
+        scanf("%d",&opcion);
+    }
+    // se elige la opción de sacar una carta  al azar del mazo
+    if (opcion == (posicion+1) && opciones == 1){
+        for (i=0; i<numeroResultados; i++){   // libero la memoria
+            free (resultados[i]);
+            resultados[i] = NULL;
+        }
+        free(resultados); 
+        resultados = NULL;
+
+        Mover_Carta_random("mazo",carpeta); // saco la carta
+        return MostrarCartas(carpeta,2); // llamo de nuevo a la funcion pero ahora con la opcion de terminar el turno
+    }
+    /* la opción es una carta válida o se terminó el turno*/
+    for (i=0; i<numeroResultados; i++){  // libero la memoria
         free (resultados[i]);
         resultados[i] = NULL;
     }
     free(resultados); 
     resultados = NULL;
 
-    printf("Ingrese Opcion: ");  // se extrae la opcion elegida 
-    int opcion;
-    scanf("%d",&opcion);
-
-    while (opcion > (posicion+1)){  // se verifica que la opcion sea válida
-        printf("Ingrese Opcion válida: ");
-        scanf("%d",&opcion);
-    }
-    
-    if (opcion <= posicion){  // la opcion elegida es una carta, se retorna lla posicion en el arreglo
+    if (opcion <= posicion){ // si se escoge una carta retorno la posición en el arreglo
         return opcion-1;
     }
-    else if (opcion == (posicion+1) && opciones == 1){ // la opción es sacar una carta
-        Mover_Carta_random("mazo",carpeta); // se mueve una carta random
-        return MostrarCartas(carpeta,2); // se llamma de nuevo a la funcion ahora con la opcion de pasar el turno
-    }
-    return -1; // la opción es pasar el turno
+
+    return -1; // si se escoge terminar el turno retorno un -1
 }
 
 
