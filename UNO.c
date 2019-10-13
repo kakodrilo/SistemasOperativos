@@ -87,7 +87,7 @@ void Generar_CartasEspeciales(){
     int i;
     char carta_especial[40];
     for (i = 1; i <= 4; i++){          // se generan las cartas especiales de cambio de color y +4 (4 de cada una)
-        sprintf(carta_especial,"4_n_%d.txt",i);
+        sprintf(carta_especial,"x_n_%d.txt",i);
         Crear_Archivo(carta_especial,"mazo");
 
         sprintf(carta_especial,"c_n_%d.txt",i);
@@ -215,7 +215,7 @@ void ImprimirCarta(char nombre[], int i){
     else if (nombre[0]=='c'){  // colores 
         strcpy(tipo,"colores");
     }
-    else if (nombre[0]=='4' && nombre[2]=='n'){  // +4
+    else if (nombre[0]=='x' && nombre[2]=='n'){  // +4
         strcpy(tipo,"+4");
     }
     else{
@@ -302,7 +302,7 @@ int MostrarCartas(char carpeta[], int opciones){
     +4 -> '6'
 */
 char Tipo_Carta(char carta[]){
-    if (carta[2] == 'n' && carta[0]=='4') return '6'; // retorno según el tipo
+    if (carta[2] == 'n' && carta[0]=='x') return '6'; // retorno según el tipo
     if (carta[0] == 'c') return '5';
     if (carta[0]=='+') return '4';
     if (carta[0] == 's') return '3';
