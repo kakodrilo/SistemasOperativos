@@ -37,7 +37,30 @@ int revisar_ultima_carta(char carpeta[]){
     return 0;
 }
 
+/* Función que borra la carta de la carpeta ultimaCarta, dejándola vacía. 
+*/
+void borrar_ultimaCarta(){
+    /* ver todos los archivos de la carpeta origen*/
+    struct dirent **resultados = NULL;
+    int numeroResultados;
+    numeroResultados = scandir ("ultimaCarta", &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
+    char nombre_archivo[40];
+    sprintf(nombre_archivo,"%s",resultados[0]->d_name); // se guarda el nombre del archivo buscado aleatoriamente
+    
+    int i;
+    for (i=0; i<numeroResultados; i++){  //se libera la memoria usada en el arreglo resultados
+        free (resultados[i]);
+        resultados[i] = NULL;
+    }
+    free(resultados);  // se libera el puntero al arreglo
+    resultados = NULL;
+
+    char borrar[40];
+    sprintf(borrar,"%s/%s","ultimaCarta",nombre_archivo);    // se borra el archivo de la carpeta de origen
+    remove(borrar); 
+}
+
 int main(){
-    printf("%d \n", revisar_ultima_carta("jugador1"));
+    borrar_ultimaCarta();
     return 0;
 }
