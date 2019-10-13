@@ -694,8 +694,7 @@ int main(){
                 for ( i = 0; i < 4; i++){
                     Mover_Carta_random("mazo","jugador2");
                 }
-                mensaje = '1';
-                write(pipe21[1],&mensaje,1); 
+                mensaje = '1'; 
             }
             else if (mensaje == '4'){ // sacar dos cartas y finalizar
                 printf("Jugador 2 saca 2 cartas\n");
@@ -704,17 +703,16 @@ int main(){
                     Mover_Carta_random("mazo","jugador2");
                 }
                 mensaje = '1';
-                write(pipe21[1],&mensaje,1); 
             }
             else if (mensaje == '3'){
                 printf("Jugador 2 es saltado\n");
-                mensaje = '1';
-                write(pipe21[1],&mensaje,1); 
+                mensaje = '1'; 
             }
             else{
                 mensaje = MostrarCartas("jugador2",1);
-                write(pipe21[1],&mensaje,1); 
+                
             }
+            write(pipe21[1],&mensaje,1); 
         }
         
         
@@ -747,7 +745,6 @@ int main(){
                     Mover_Carta_random("mazo","jugador3");
                 }
                 mensaje = '1';
-                write(pipe31[1],&mensaje,1); 
             }
             else if (mensaje == '4'){
                 printf("Jugador 3 saca 2 cartas\n");
@@ -756,17 +753,15 @@ int main(){
                     Mover_Carta_random("mazo","jugador3");
                 }
                 mensaje = '1';
-                write(pipe31[1],&mensaje,1); 
             }
             else if (mensaje == '3'){
                 printf("Jugador 3 es saltado\n");
                 mensaje = '1';
-                write(pipe31[1],&mensaje,1); 
             }
             else{
                 mensaje = MostrarCartas("jugador3",1);
-                write(pipe31[1],&mensaje,1); 
             } 
+            write(pipe31[1],&mensaje,1); 
         }
         
     }
@@ -798,7 +793,6 @@ int main(){
                     Mover_Carta_random("mazo","jugador4");
                 }
                 mensaje = '1';
-                write(pipe41[1],&mensaje,1); 
             }
             else if (mensaje == '4'){
                 printf("Jugador 4 saca 2 cartas");
@@ -807,17 +801,16 @@ int main(){
                     Mover_Carta_random("mazo","jugador4");
                 }
                 mensaje = '1';
-                write(pipe41[1],&mensaje,1); 
             }
             else if (mensaje == '3'){
                 printf("Jugador 4 es saltado");
                 mensaje = '1';
-                write(pipe41[1],&mensaje,1); 
             }
             else{
                 mensaje = MostrarCartas("jugador4",1);
-                write(pipe41[1],&mensaje,1); 
+                
             } 
+            write(pipe41[1],&mensaje,1); 
         }
     }
     
