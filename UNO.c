@@ -303,15 +303,15 @@ char MostrarCartas(char carpeta[], int opciones){
 
     /* Monstrar opciones de Juego*/
     int i;
-    printf(" Elige una Opcion:\n\nCartas en mano:\n\n");  
+    printf("Elige una opción:\n\nCartas en mano:\n\n");  
     for (i = 0; i < numeroResultados; i++){  // se muestran por pantalla las cartas en la carpeta del jugador
         ImprimirCarta(resultados[i]->d_name,(i+1));
     }
     if (opciones == 1){  // se da la opcion de sacar una carta al azar del mazo
-        printf("\n(%d) Sacar carta\n",(i+1));
+        printf("\n (%d) Sacar carta\n\n",(i+1));
     }
     else{  // se da la opción de terminar el turno
-        printf("\n(%d) Terminar turno\n",(i+1));
+        printf("\n (%d) Terminar turno\n\n",(i+1));
     }
     int posicion = i;
 
@@ -414,7 +414,7 @@ int revisar_ultima_carta(char carpeta[]){
         else{
             sprintf(tipo,"%c",nombre[0]);  // cartas numericas
         }
-        printf("\nLa última carta jugada es: %s %s %s\n",colorTerminal,tipo,color);
+        printf("\n\n\nLa última carta jugada es: %s %s %s\n",colorTerminal,tipo,color);
     }
     int i;
     for (i=0; i<numeroResultados; i++){  //se libera la memoria usada en el arreglo resultados
@@ -547,6 +547,7 @@ int main(){
         int turno = 1;      //Variable que indica el turno que se esta jugando
         int incremento = 1; //Variable que determina si va en direccion normal (1) o reverse (3)
         int v1,v2,v3,v4;
+        printf("\n\nINICIO DEL JUEGO\n");
         revisar_ultima_carta("ultimaCarta");
         while (1){ 
             if (fabs(turno%4) == 1){  // Turno jugador1
@@ -649,16 +650,16 @@ int main(){
                 break;
             }
             if (v1==1){
-                printf("\n\nEl jugador 1 tiene sólo 1 carta \n");
+                printf("\nEl jugador 1 tiene sólo 1 carta \n");
             }
             if (v2==1){
-                printf("\n\nEl jugador 2 tiene sólo 1 carta \n");
+                printf("\nEl jugador 2 tiene sólo 1 carta \n");
             }
             if (v3==1){
-                printf("\n\nEl jugador 3 tiene sólo 1 carta \n");
+                printf("\nEl jugador 3 tiene sólo 1 carta \n");
             }
             if (v4==1){
-                printf("\n\nEl jugador 4 tiene sólo 1 carta \n");
+                printf("\nEl jugador 4 tiene sólo 1 carta \n");
             }
             turno = turno + incremento; //Se mueve al siguiente turno
     
