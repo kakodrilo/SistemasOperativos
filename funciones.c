@@ -79,7 +79,33 @@ void Mover_Carta_random(char carpeta_origen[],char carpeta_destino[]){
     }
 }
 
+/*Función que mueve una carta inicial random a la carpeta ultimaCarta para comenzar el juego. Verifica
+que la carta movida no sea una carta espacial (+2,+4,salto)*/
+void Mover_Carta_inicio(){
+    /* ver todos los archivos de la carpeta origen*/
+    struct dirent **resultados = NULL;
+    int numeroResultados, aleatorio;
+    char nombre_archivo[40] = "s_r_1.txt";
+    numeroResultados = scandir ("mazo", &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
+    while (nombre_archivo[0]=='+' || nombre_archivo[0]=='x' || nombre_archivo[0]=='s' ){
+        aleatorio = (rand()%numeroResultados); //+2; // genero un random entre 2 y (numeroResultados -1): posiciones del arreglo que son utiles
+        sprintf(nombre_archivo,"%s",resultados[aleatorio]->d_name); // se guarda el nombre del archivo buscado aleatoriamente
+    }
+    int i;
+    for (i=0; i<numeroResultados; i++){  //se libera la memoria usada en el arreglo resultados
+        free (resultados[i]);
+        resultados[i] = NULL;
+    }
+    free(resultados);  // se libera el puntero al arreglo
+    resultados = NULL;
+
+    Crear_Archivo(nombre_archivo,"ultimaCarta"); // se crea el archivo en la carpeta de destino
+    char borrar[40];
+    sprintf(borrar,"%s/%s","mazo",nombre_archivo);    // se borra el archivo de la carpeta de origen
+    remove(borrar); 
+    
+}
+
 int main(){
-    Mover_Carta_random("mazo","jugador1");
-    return 0;
+    Mover_Carta_inicio();
 }
