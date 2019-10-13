@@ -292,7 +292,23 @@ int MostrarCartas(char carpeta[], int opciones){
     return -1; // si se escoge terminar el turno retorno un -1
 }
 
-
+/*  Función que recibe el nombre de una carta y  retorna el tipo de carta que es.
+    retornos según tipo:
+    [0-9] -> '1'
+    reversa -> '2'
+    salto -> '3'
+    +2 -> '4'
+    colores -> '5'
+    +4 -> '6'
+*/
+char Tipo_Carta(char carta[]){
+    if (carta[2] == 'n' && carta[0]=='4') return '6'; // retorno según el tipo
+    if (carta[0] == 'c') return '5';
+    if (carta[0]=='+') return '4';
+    if (carta[0] == 's') return '3';
+    if (carta[0] == 'r') return '2';
+    return '1';
+}
 
 int main(){
     srand(time(NULL));
