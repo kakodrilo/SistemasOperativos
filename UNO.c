@@ -581,16 +581,16 @@ int main(){
                 
             }
             else if (fabs(turno%4) == 3){  // Turno jugador3
-                printf("%c",mensaje);
+              
                 write(pipe13[1],&mensaje,1); //Se le envia mensaje de iniciar turno
                 while((read(pipe31[0],&mensaje,1))<0){};   //Se espera hasta recibir mensaje de turno finalizado
-                printf("%c",mensaje);
+            
             }
             else if (fabs(turno%4) == 0){  // turno juagdor4
-                printf("%c",mensaje);
+               
                 write(pipe14[1],&mensaje,1); //Se le envia mensaje de iniciar turno
                 while((read(pipe41[0],&mensaje,1))<0){};   //Se espera hasta recibir mensaje de turno finalizado
-                printf("%c",mensaje);
+              
             }
 
             // Manejo de opciones: // 5 es +4, 6 colores,4 +2, salto 3, reversa 2, 1
@@ -661,7 +661,7 @@ int main(){
                 printf("\n\nEl jugador 4 tiene sólo 1 carta \n");
             }
             turno = turno + incremento; //Se mueve al siguiente turno
-            printf("envio: %c",mensaje);
+    
         }
         
 
@@ -683,7 +683,7 @@ int main(){
         char mensaje;
         while (1){ 
             while((read(pipe12[0],&mensaje,1))<0){};
-            printf("recibo: %c",mensaje);
+        
             if (mensaje=='0'){ // el papá le manda un cero si el juego ha terminado
                 break;
             }
