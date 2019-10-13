@@ -16,16 +16,14 @@ int filtro(const struct dirent * carpeta){
 }
 
 
-/* Función que compara una carta (string) recibida como parámetro con la última carta jugada 
-(carta en carpeta ultimaCarta) y retorna un 1 si es válido poner la carta, o un 0 si no es válido
+/* Función que revisa si a algún jugador le queda una carta, o si ganó el juego. 
+Retorna 1 si le queda 1 carta, 2 si ganó el juego o 0 en caso contrario. 
 */
-int carta_valida(char carta[]){
+int revisar_ultima_carta(char carpeta[]){
      /* ver todos los archivos de la carpeta origen*/
     struct dirent **resultados = NULL;
     int numeroResultados;
-    numeroResultados = scandir ("ultimaCarta", &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
-    char ultima_carta[strlen(resultados[0]->d_name)];
-    strcpy(ultima_carta,resultados[0]->d_name);
+    numeroResultados = scandir (carpeta, &resultados, (*filtro), NULL); // se guardan en el arreglo resultados
     int i;
     for (i=0; i<numeroResultados; i++){  //se libera la memoria usada en el arreglo resultados
         free (resultados[i]);
@@ -33,21 +31,13 @@ int carta_valida(char carta[]){
     }
     free(resultados);  // se libera el puntero al arreglo
     resultados = NULL;
-    if (carta[2]!='n'){
-        if (( carta[0] == ultima_carta[0]) || (carta[2] == ultima_carta[2])){
-            return 1;
-        }
-        else{
-            return 0;
-        }
-        
-    }
-    else{
-        return 1;
-    }
+
+    if (numeroResultados == 1) return 1;
+    else if (numeroResultados == 0) return 2;
+    return 0;
 }
 
 int main(){
-    printf("%d \n",carta_valida("6_v_3.txt"));
+    printf("%d \n", revisar_ultima_carta("jugador1"));
     return 0;
 }
