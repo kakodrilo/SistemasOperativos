@@ -1,8 +1,8 @@
 ﻿TAREA 1 SISTEMAS OPERATIVOS: Juego UNO
 
 * Integrantes:
-- Joaquín Castillo Tapia            rol 201773520-1
-- María Paz Morales Llopis          rol 201773505-8
+- Joaquín Alejandro Castillo Tapia            rol 201773520-1
+- María Paz Morales Llopis                    rol 201773505-8
 
 * Ejecución:
 - Abrir terminar en la carpeta donde esté el makeile y el archivo UNO.c
@@ -15,5 +15,3 @@
   -> En la carpeta ultimaCarta hay una carta seleccionada aleatoriamente.
 - Para borrar las carpetas y archivos creados, junto con el ejecutable y archivo .o, se debe ejcutar en la terminal:
                                     $ make clear
-
-* Consideraciones:

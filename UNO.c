@@ -320,16 +320,16 @@ char MostrarCartas(char carpeta[], int opciones){
     scanf("%d",&opcion);
 
     /* Manejo de Opción seleccionada*/
-    while (opcion > (posicion+1) || opcion < 1){  // se verifica que la opción sea válida
-        printf("Ingrese Opcion válida: ");
+    while ((opcion > (posicion+1) || opcion < 1) || (opcion <= posicion && carta_valida(resultados[opcion-1]->d_name)==0)){  // se verifica que la opción sea válida
+        if ((opcion > (posicion+1) || opcion < 1)){
+            printf("Ingrese Opcion válida: ");
+        }
+        else{
+            printf("Ingrese carta válida: ");
+        }
         scanf("%d",&opcion);
     }
 
-    // si se elige una carta se verifica que sea una carta jugable
-    while (opcion <= posicion && carta_valida(resultados[opcion-1]->d_name)==0){ 
-        printf("Ingrese carta válida: ");
-        scanf("%d",&opcion);
-    }
     // se elige la opción de sacar una carta  al azar del mazo
     if (opcion == (posicion+1) && opciones == 1){
         for (i=0; i<numeroResultados; i++){   // libero la memoria
